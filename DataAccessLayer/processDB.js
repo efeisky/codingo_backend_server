@@ -73,8 +73,9 @@ module.exports.getUserInfos = async function getUserInfos(username) {
     const sql_selectUser = `
     SELECT table_user.*,table_profile.biographyTitle,table_profile.biographyContent 
     FROM table_user 
-    INNER JOIN table_profile ON table_user.id = table_profile.username 
-    WHERE table_user.username = ?`;
+    LEFT JOIN table_profile ON table_user.id = table_profile.username 
+    WHERE table_user.username = ?
+    `;
     try {
       const connection = await pool.promise().getConnection();
       
@@ -216,6 +217,7 @@ module.exports.registerUser = async function registerUser(userClass) {
         
         const [rows, fields] = await connection.execute(sql_addUser, userClass);
         const userID = (await this.getUserInfos(userClass[1])).result[0].id;
+        console.log(userID)
         const [rowsSecurity, fieldsSecurity] = await connection.execute(sql_addSecurity, [userID]);
         const [rowsProfile, fieldsProfile] = await connection.execute(sql_addProfile, [userID,`Merhaba ben ${userClass[1]}`]);
 
