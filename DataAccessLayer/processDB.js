@@ -74,7 +74,7 @@ module.exports.getUserInfos = async function getUserInfos(username) {
     SELECT table_user.*,table_profile.biographyTitle,table_profile.biographyContent 
     FROM table_user 
     INNER JOIN table_profile ON table_user.id = table_profile.username 
-    WHERE table_user.username = ?;`;
+    WHERE table_user.username = ?`;
     try {
       const connection = await pool.promise().getConnection();
       
