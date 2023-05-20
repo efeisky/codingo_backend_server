@@ -1,6 +1,8 @@
 const { Message } = require('../Extras/Message')
 const processDB = require('./../DataAccessLayer/processDB')
 const bodyParser = require('body-parser')
+const fetch = require('node-fetch');
+
 module.exports = (app) => {
     app.get('/userDetailForChat',async (req,res) => {
         const {username} = req.query
