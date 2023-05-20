@@ -503,7 +503,8 @@ module.exports.getOrderAsGlobal = async function(username){
         LIMIT 21
       ) AS t2
       WHERE userScore <= (SELECT userScore FROM table_user WHERE username = ?) OR username = ?
-      ORDER BY userScore DESC;
+      ORDER BY userScore DESC LIMIT 0 OFFSET 25;
+
       
 
       `;
@@ -545,7 +546,7 @@ module.exports.getOrderAsLocal = async function(username){
     const value = await (await this.getUserInfos(username)).result
     const {school,userProvince} = value[0]
     const sql_getOrder = `
-        SELECT rank, realName, username, pictureSrc, userScore
+       SELECT rank, realName, username, pictureSrc, userScore
         FROM (
             SELECT rank, realName, username, pictureSrc, userScore
             FROM (
@@ -564,9 +565,10 @@ module.exports.getOrderAsLocal = async function(username){
             FROM table_user
         ) AS t2
         WHERE userScore <= (SELECT userScore FROM table_user WHERE username = ?)
-        AND school = ? AND userProvince = ? OR username = ?
+        AND (school = ? AND userProvince = ? OR username = ?)
         ORDER BY userScore DESC 
         LIMIT 21;
+
     
       `;
 
