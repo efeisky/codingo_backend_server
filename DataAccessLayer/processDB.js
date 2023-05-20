@@ -216,8 +216,8 @@ module.exports.registerUser = async function registerUser(userClass) {
         
         const [rows, fields] = await connection.execute(sql_addUser, userClass);
         const userID = (await this.getUserInfos(userClass[1])).result[0].id;
-        const [rowsProfile, fieldsProfile] = await connection.execute(sql_addProfile, [userID,`Merhaba ben ${userClass[1]}`]);
         const [rowsSecurity, fieldsSecurity] = await connection.execute(sql_addSecurity, [userID]);
+        const [rowsProfile, fieldsProfile] = await connection.execute(sql_addProfile, [userID,`Merhaba ben ${userClass[1]}`]);
 
         return {
           sqlStatus: 1,
