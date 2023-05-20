@@ -1,5 +1,6 @@
 const processDB = require('../DataAccessLayer/processDB')
 const bodyParser = require('body-parser')
+const fetch = require('node-fetch');
 
 module.exports = (app) => {
     app.get('/profileByUsername',async(req,res) => {
