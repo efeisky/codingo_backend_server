@@ -195,13 +195,30 @@ module.exports.registerUser = async function registerUser(userClass) {
   const resultTest = await testConnect()
   if(resultTest.dbStatus){
     const sql_addUser = `INSERT INTO table_user SET realName = ?, username = ?, email = ?, password = ?, school = ?, pictureSrc = ?, userScore= ?, userEducation= ?, userPython = ?, userProvince= ?, userMathLesson = ?, userPyLesson= ?`;
-    
+    const sql_addSecurity = `
+    INSERT INTO table_security SET  
+    UID = ?,
+    verified = 0,
+    phoneVerified = 0,
+    phoneNumber = '',
+    twoFactor = 0
+    `
+    const sql_addProfile = `
+    INSERT INTO table_profile SET  
+    username = ?,
+    biographyTitle = 'Biyografim', 
+    biographyContent = ?
+    `
     try {
       const connection = await pool.promise().getConnection();
       
       try {
         
         const [rows, fields] = await connection.execute(sql_addUser, userClass);
+        const userID = (await this.getUserInfos(userClass[1])).result[0].id;
+        const [rowsProfile, fieldsProfile] = await connection.execute(sql_addProfile, [userID,`Merhaba ben ${userClass[1]}`]);
+        const [rowsSecurity, fieldsSecurity] = await connection.execute(sql_addSecurity, [userID]);
+
         return {
           sqlStatus: 1,
           errorStatus: false
@@ -484,28 +501,29 @@ module.exports.getOrderAsGlobal = async function(username){
   if(resultTest.dbStatus){
    
     const sql_getOrder = `
-  SELECT \`rank\`, realName, username, pictureSrc, userScore
-  FROM (
-    SELECT \`rank\`, realName, username, pictureSrc, userScore
-    FROM (
-      SELECT *, RANK() OVER (ORDER BY userScore DESC) AS \`rank\`
-      FROM table_user
-    ) AS t
-    WHERE userScore > (SELECT userScore FROM table_user WHERE username = ?)
-    ORDER BY userScore ASC 
-    LIMIT 3
-  ) AS t1
-  UNION 
-  SELECT \`rank\`, realName, username, pictureSrc, userScore
-  FROM (
-    SELECT *, RANK() OVER (ORDER BY userScore DESC) AS \`rank\`
-    FROM table_user
-    LIMIT 21
-  ) AS t2
-  WHERE userScore <= (SELECT userScore FROM table_user WHERE username = ?) OR username = ?
-  ORDER BY userScore DESC;
-`;
+      SELECT rank, realName, username, pictureSrc, userScore
+      FROM (
+        SELECT rank, realName, username, pictureSrc, userScore
+        FROM (
+          SELECT *, RANK() OVER (ORDER BY userScore DESC) AS rank
+          FROM table_user
+        ) AS t
+        WHERE userScore > (SELECT userScore FROM table_user WHERE username = ?)
+        ORDER BY userScore ASC 
+        LIMIT 3
+      ) AS t1
+      UNION 
+      SELECT rank, realName, username, pictureSrc, userScore
+      FROM (
+        SELECT *, RANK() OVER (ORDER BY userScore DESC) AS rank
+        FROM table_user
+        LIMIT 21
+      ) AS t2
+      WHERE userScore <= (SELECT userScore FROM table_user WHERE username = ?) OR username = ?
+      ORDER BY userScore DESC;
+      
 
+      `;
 
 
     try {
@@ -544,30 +562,30 @@ module.exports.getOrderAsLocal = async function(username){
     const value = await (await this.getUserInfos(username)).result
     const {school,userProvince} = value[0]
     const sql_getOrder = `
-    SELECT \`rank\`, realName, username, pictureSrc, userScore
-    FROM (
-      SELECT \`rank\`, realName, username, pictureSrc, userScore
-      FROM (
-        SELECT *, RANK() OVER (ORDER BY userScore DESC) AS \`rank\`
-        FROM table_user
-        WHERE school = ? AND userProvince = ?
-      ) AS t
-      WHERE userScore > (SELECT userScore FROM table_user WHERE username = ?)
-      ORDER BY userScore ASC
-      LIMIT 3
-    ) AS t1
-    UNION 
-    SELECT \`rank\`, realName, username, pictureSrc, userScore
-    FROM (
-      SELECT *, RANK() OVER (ORDER BY userScore DESC) AS \`rank\`
-      FROM table_user
-      WHERE school = ? AND userProvince = ?
-    ) AS t2
-    WHERE userScore <= (SELECT userScore FROM table_user WHERE username = ?)
-    AND (school = ? AND userProvince = ? OR username = ?)
-    ORDER BY userScore DESC 
-    LIMIT 21;
-  `;
+        SELECT rank, realName, username, pictureSrc, userScore
+        FROM (
+            SELECT rank, realName, username, pictureSrc, userScore
+            FROM (
+                SELECT *, RANK() OVER (ORDER BY userScore DESC) AS rank
+                FROM table_user
+            ) AS t
+            WHERE userScore > (SELECT userScore FROM table_user WHERE username = ?)
+            AND school = ? AND userProvince = ?
+            ORDER BY userScore ASC
+            LIMIT 3
+        ) AS t1
+        UNION 
+        SELECT rank, realName, username, pictureSrc, userScore
+        FROM (
+            SELECT *, RANK() OVER (ORDER BY userScore DESC) AS rank
+            FROM table_user
+        ) AS t2
+        WHERE userScore <= (SELECT userScore FROM table_user WHERE username = ?)
+        AND school = ? AND userProvince = ? OR username = ?
+        ORDER BY userScore DESC 
+        LIMIT 21;
+    
+      `;
 
 
     try {
@@ -575,7 +593,7 @@ module.exports.getOrderAsLocal = async function(username){
       
       try {
         
-        const [rows,fields] = await connection.execute(sql_getOrder,[school,userProvince,username,school,userProvince,username,school,userProvince,username]);
+        const [rows,fields] = await connection.execute(sql_getOrder,[username,school,userProvince,username,school,userProvince,username]);
         
         return {
           result: rows,
@@ -1464,39 +1482,71 @@ module.exports.getSettingValues = async function(username){
       }
   }
 }
-module.exports.deleteAccount = async function(username){  
-  const resultTest = await testConnect()
-  if(resultTest.dbStatus){
-
-    const sql_getUserValues = `
-    DELETE FROM table_user WHERE username = ?
-    `
+module.exports.deleteAccount = async function(username) {
+  const resultTest = await testConnect();
+  if (resultTest.dbStatus) {
+    const sql_deleteFromProfile = `
+      DELETE FROM table_profile WHERE username = (SELECT id FROM table_user WHERE username = ?)
+    `;
+    const sql_deleteFromResult = `
+      DELETE FROM table_lessonresult WHERE username = (SELECT id FROM table_user WHERE username = ?)
+    `;
+    const sql_deleteFromFollow = `
+      DELETE FROM table_followprofile WHERE followingUser = (SELECT id FROM table_user WHERE username = ?) OR followedUser = (SELECT id FROM table_user WHERE username = ?)
+    `;
+    const sql_deleteFromLike = `
+      DELETE FROM table_likeprofile WHERE processerUsername = (SELECT id FROM table_user WHERE username = ?) OR processedUsername = (SELECT id FROM table_user WHERE username = ?)
+    `;
+    const sql_deleteFromChat = `
+      DELETE FROM table_chat WHERE sender_username = (SELECT id FROM table_user WHERE username = ?) OR receiver_username = (SELECT id FROM table_user WHERE username = ?)
+    `;
+    const sql_deleteFromNote = `
+      DELETE FROM table_nots WHERE usernameID = (SELECT id FROM table_user WHERE username = ?)
+    `;
+    const sql_deleteFromReport = `
+      DELETE FROM table_report WHERE complainingUser = (SELECT id FROM table_user WHERE username = ?) OR complainedUser = (SELECT id FROM table_user WHERE username = ?)
+    `;
+    const sql_deleteFromSecurity = `
+      DELETE FROM table_security WHERE UID = (SELECT id FROM table_user WHERE username = ?)
+    `;
+    const sql_deleteFromUser = `
+      DELETE FROM table_user WHERE username = ?
+    `;
 
     try {
       const connection = await pool.promise().getConnection();
       
       try {
-        const [rows,fields] = await connection.execute(sql_getUserValues,[username]);
+        await connection.execute(sql_deleteFromProfile, [username]);
+        await connection.execute(sql_deleteFromResult, [username]);
+        await connection.execute(sql_deleteFromFollow, [username, username]);
+        await connection.execute(sql_deleteFromLike, [username, username]);
+        await connection.execute(sql_deleteFromChat, [username, username]);
+        await connection.execute(sql_deleteFromNote, [username]);
+        await connection.execute(sql_deleteFromReport, [username, username]);
+        await connection.execute(sql_deleteFromSecurity, [username]);
+        await connection.execute(sql_deleteFromUser, [username]);
+        
         return {
           sqlStatus: 1,
           errorStatus: false
-        }
+        };
       } finally {
         if (connection) connection.release();
       }
     } catch (err) {
-      return {
-        sqlStatus: 0,
-        errorStatus: err
-      }
-    }
-  }else{
-      return {
-        sqlStatus: 0,
-        errorStatus: 'DB isn\'t working'
-      }
+    return {
+      sqlStatus: 0,
+      errorStatus: err
+    };
   }
-}
+  } else {
+    return {
+      sqlStatus: 0,
+      errorStatus: 'DB isn\'t working'
+    };
+  }
+};
 module.exports.getLessonByNameClassAndID = async function(name,lesClass,id){
   const resultTest = await testConnect()
   if(resultTest.dbStatus){
