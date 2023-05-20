@@ -484,11 +484,11 @@ module.exports.getOrderAsGlobal = async function(username){
   if(resultTest.dbStatus){
    
     const sql_getOrder = `
-      SELECT rank, realName, username, pictureSrc, userScore
+       SELECT `rank`, realName, username, pictureSrc, userScore
       FROM (
-        SELECT rank, realName, username, pictureSrc, userScore
+        SELECT `rank`, realName, username, pictureSrc, userScore
         FROM (
-          SELECT *, RANK() OVER (ORDER BY userScore DESC) AS rank
+          SELECT *, RANK() OVER (ORDER BY userScore DESC) AS `rank`
           FROM table_user
         ) AS t
         WHERE userScore > (SELECT userScore FROM table_user WHERE username = ?)
@@ -496,14 +496,14 @@ module.exports.getOrderAsGlobal = async function(username){
         LIMIT 3
       ) AS t1
       UNION 
-      SELECT rank, realName, username, pictureSrc, userScore
+      SELECT `rank`, realName, username, pictureSrc, userScore
       FROM (
-        SELECT *, RANK() OVER (ORDER BY userScore DESC) AS rank
+        SELECT *, RANK() OVER (ORDER BY userScore DESC) AS `rank`
         FROM table_user
         LIMIT 21
       ) AS t2
       WHERE userScore <= (SELECT userScore FROM table_user WHERE username = ?) OR username = ?
-      ORDER BY userScore DESC LIMIT 0 OFFSET 25;
+      ORDER BY userScore DESC;
 
       
 
@@ -546,30 +546,29 @@ module.exports.getOrderAsLocal = async function(username){
     const value = await (await this.getUserInfos(username)).result
     const {school,userProvince} = value[0]
     const sql_getOrder = `
-       SELECT rank, realName, username, pictureSrc, userScore
+       SELECT `rank`, realName, username, pictureSrc, userScore
         FROM (
-            SELECT rank, realName, username, pictureSrc, userScore
+            SELECT `rank`, realName, username, pictureSrc, userScore
             FROM (
-                SELECT *, RANK() OVER (ORDER BY userScore DESC) AS rank
+                SELECT *, RANK() OVER (ORDER BY userScore DESC) AS `rank`
                 FROM table_user
+                WHERE school = ? AND userProvince = ?
             ) AS t
             WHERE userScore > (SELECT userScore FROM table_user WHERE username = ?)
-            AND school = ? AND userProvince = ?
             ORDER BY userScore ASC
             LIMIT 3
         ) AS t1
         UNION 
-        SELECT rank, realName, username, pictureSrc, userScore
+        SELECT `rank`, realName, username, pictureSrc, userScore
         FROM (
-            SELECT *, RANK() OVER (ORDER BY userScore DESC) AS rank
+            SELECT *, RANK() OVER (ORDER BY userScore DESC) AS `rank`
             FROM table_user
+            WHERE school = ? AND userProvince = ?
         ) AS t2
         WHERE userScore <= (SELECT userScore FROM table_user WHERE username = ?)
         AND (school = ? AND userProvince = ? OR username = ?)
         ORDER BY userScore DESC 
         LIMIT 21;
-
-    
       `;
 
 
@@ -578,7 +577,7 @@ module.exports.getOrderAsLocal = async function(username){
       
       try {
         
-        const [rows,fields] = await connection.execute(sql_getOrder,[username,school,userProvince,username,school,userProvince,username]);
+        const [rows,fields] = await connection.execute(sql_getOrder,[school,userProvince,username,school,userProvince,username,school,userProvince,username]);
         
         return {
           result: rows,
