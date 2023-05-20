@@ -5,7 +5,7 @@ const fetch = require('node-fetch');
 module.exports = (app) => {
     app.post('/pythonMachine',bodyParser.json(),async (req,res) => {
         try {
-            const response = await fetch('http://127.0.0.1:7000/python/', {
+            const response = await fetch('https://codingo-machine-server.onrender.com/python/', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -35,7 +35,7 @@ module.exports = (app) => {
     app.get('/getQuestionForPractice',async(req,res)=>{
       const {username,lessonName} = req.query;
       try {
-        const response = await fetch('http://127.0.0.1:7000/practice/', {
+        const response = await fetch('https://codingo-machine-server.onrender.com/practice/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
