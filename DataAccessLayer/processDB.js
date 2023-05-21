@@ -1509,7 +1509,7 @@ module.exports.deleteAccount = async function (username) {
       // Delete from table_chat
       const senderIDQuery = 'SELECT id FROM table_user WHERE username = ?';
       const [senderIDRows] = await connection.execute(senderIDQuery, [username]);
-      const senderID = senderIDRows[0].id;
+      const senderID = senderIDRows[0].id.toString();
 
       const sql_deleteFromChat = 'DELETE FROM `table_chat` WHERE sender_username = ? OR receiver_username = ?';
       await connection.execute(sql_deleteFromChat, [senderID, senderID]);
