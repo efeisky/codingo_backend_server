@@ -1029,7 +1029,7 @@ module.exports.getProfileScores = async function(username,type){
       sql_getProfileScore = ` 
       SELECT ranked_users.rank 
       FROM (
-        SELECT username,RANK() OVER (ORDER BY userScore DESC) AS rank 
+        SELECT username,RANK() OVER (ORDER BY userScore DESC) AS \`rank\` 
         FROM table_user
         WHERE school = (SELECT school FROM table_user WHERE username = ?)
       	AND 
@@ -1047,7 +1047,7 @@ module.exports.getProfileScores = async function(username,type){
       sql_getProfileScore = ` 
       SELECT ranked_users.rank
       FROM (
-        SELECT username,RANK() OVER (ORDER BY userScore DESC) AS rank 
+        SELECT username,RANK() OVER (ORDER BY userScore DESC) AS \`rank\`
         FROM table_user
       	WHERE userProvince = (SELECT userProvince FROM table_user WHERE username = ?)
           
