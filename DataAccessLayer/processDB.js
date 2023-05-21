@@ -1529,8 +1529,7 @@ module.exports.deleteAccount = async function (username) {
       // Delete from table_user
       const sql_deleteFromUser = 'DELETE FROM `table_user` WHERE username = ?';
       await connection.execute(sql_deleteFromUser, [username]);
-
-      console.log('Account successfully deleted.');
+      
       return {
         sqlStatus: 1,
         errorStatus: false,
