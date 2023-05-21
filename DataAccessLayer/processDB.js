@@ -1505,11 +1505,7 @@ module.exports.deleteAccount = async function (username) {
       // Delete from table_likeprofile
       const sql_deleteFromLike = 'DELETE FROM `table_likeprofile` WHERE processerUsername = (SELECT id FROM table_user WHERE username = ?) OR processedUsername = (SELECT id FROM table_user WHERE username = ?)';
       await connection.execute(sql_deleteFromLike, [username, username]);
-
-      // Delete from table_chat
-      const sql_deleteFromChat = 'DELETE FROM `table_chat` WHERE sender_username = (SELECT id FROM table_user WHERE username = ?) OR receiver_username = (SELECT id FROM table_user WHERE username = ?)';
-      await connection.execute(sql_deleteFromChat, [username, username]);
-
+      
       // Delete from table_nots
       const sql_deleteFromNote = 'DELETE FROM `table_nots` WHERE usernameID = (SELECT id FROM table_user WHERE username = ?)';
       await connection.execute(sql_deleteFromNote, [username]);
