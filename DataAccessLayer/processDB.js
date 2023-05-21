@@ -1484,7 +1484,7 @@ module.exports.getSettingValues = async function(username){
       }
   }
 }
-module.exports.deleteAccount = async function(username) {
+module.exports.deleteAccount = async function (username) {
   const resultTest = await testConnect();
   if (resultTest.dbStatus) {
     const sql_deleteFromProfile = `DELETE FROM \`table_profile\` WHERE username = (SELECT id FROM table_user WHERE username = ?)`;
@@ -1501,13 +1501,27 @@ module.exports.deleteAccount = async function(username) {
 
     try {
       const connection = await pool.promise().getConnection();
-      
+
       try {
-        const [rows,fields] = await connection.execute(combinedSql, [username, username, username, username, username, username, username, username, username,username,username,username,username]);
-        console.log(rows)
+        const [rows, fields] = await connection.execute(combinedSql, [
+          username,
+          username,
+          username,
+          username,
+          username,
+          username,
+          username,
+          username,
+          username,
+          username,
+          username,
+          username,
+          username,
+        ]);
+        console.log(rows);
         return {
           sqlStatus: 1,
-          errorStatus: false
+          errorStatus: false,
         };
       } finally {
         if (connection) connection.release();
@@ -1515,16 +1529,17 @@ module.exports.deleteAccount = async function(username) {
     } catch (err) {
       return {
         sqlStatus: 0,
-        errorStatus: err
+        errorStatus: err,
       };
     }
   } else {
     return {
       sqlStatus: 0,
-      errorStatus: 'DB isn\'t working'
+      errorStatus: 'DB çalışmıyor',
     };
   }
 };
+
 module.exports.getLessonByNameClassAndID = async function(name,lesClass,id){
   const resultTest = await testConnect()
   if(resultTest.dbStatus){
