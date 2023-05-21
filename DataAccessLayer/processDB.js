@@ -1487,47 +1487,23 @@ module.exports.getSettingValues = async function(username){
 module.exports.deleteAccount = async function(username) {
   const resultTest = await testConnect();
   if (resultTest.dbStatus) {
-    const sql_deleteFromProfile = `
-      DELETE FROM table_profile WHERE username = (SELECT id FROM table_user WHERE username = ?)
-    `;
-    const sql_deleteFromResult = `
-      DELETE FROM table_lessonresult WHERE username = (SELECT id FROM table_user WHERE username = ?)
-    `;
-    const sql_deleteFromFollow = `
-      DELETE FROM table_followprofile WHERE followingUser = (SELECT id FROM table_user WHERE username = ?) OR followedUser = (SELECT id FROM table_user WHERE username = ?)
-    `;
-    const sql_deleteFromLike = `
-      DELETE FROM table_likeprofile WHERE processerUsername = (SELECT id FROM table_user WHERE username = ?) OR processedUsername = (SELECT id FROM table_user WHERE username = ?)
-    `;
-    const sql_deleteFromChat = `
-      DELETE FROM table_chat WHERE sender_username = (SELECT id FROM table_user WHERE username = ?) OR receiver_username = (SELECT id FROM table_user WHERE username = ?)
-    `;
-    const sql_deleteFromNote = `
-      DELETE FROM table_nots WHERE usernameID = (SELECT id FROM table_user WHERE username = ?)
-    `;
-    const sql_deleteFromReport = `
-      DELETE FROM table_report WHERE complainingUser = (SELECT id FROM table_user WHERE username = ?) OR complainedUser = (SELECT id FROM table_user WHERE username = ?)
-    `;
-    const sql_deleteFromSecurity = `
-      DELETE FROM table_security WHERE UID = (SELECT id FROM table_user WHERE username = ?)
-    `;
-    const sql_deleteFromUser = `
-      DELETE FROM table_user WHERE username = ?
-    `;
+    const sql_deleteFromProfile = `DELETE FROM \`table_profile\` WHERE username = (SELECT id FROM table_user WHERE username = ?)`;
+    const sql_deleteFromResult = `DELETE FROM \`table_lessonresult\` WHERE username = (SELECT id FROM table_user WHERE username = ?)`;
+    const sql_deleteFromFollow = `DELETE FROM \`table_followprofile\` WHERE followingUser = (SELECT id FROM table_user WHERE username = ?) OR followedUser = (SELECT id FROM table_user WHERE username = ?)`;
+    const sql_deleteFromLike = `DELETE FROM \`table_likeprofile\` WHERE processerUsername = (SELECT id FROM table_user WHERE username = ?) OR processedUsername = (SELECT id FROM table_user WHERE username = ?)`;
+    const sql_deleteFromChat = `DELETE FROM \`table_chat\` WHERE sender_username = (SELECT id FROM table_user WHERE username = ?) OR receiver_username = (SELECT id FROM table_user WHERE username = ?)`;
+    const sql_deleteFromNote = `DELETE FROM \`table_nots\` WHERE usernameID = (SELECT id FROM table_user WHERE username = ?)`;
+    const sql_deleteFromReport = `DELETE FROM \`table_report\` WHERE complainingUser = (SELECT id FROM table_user WHERE username = ?) OR complainedUser = (SELECT id FROM table_user WHERE username = ?)`;
+    const sql_deleteFromSecurity = `DELETE FROM \`table_security\` WHERE UID = (SELECT id FROM table_user WHERE username = ?)`;
+    const sql_deleteFromUser = `DELETE FROM \`table_user\` WHERE username = ?`;
+
+    const combinedSql = `${sql_deleteFromProfile}; ${sql_deleteFromResult}; ${sql_deleteFromFollow}; ${sql_deleteFromLike}; ${sql_deleteFromChat}; ${sql_deleteFromNote}; ${sql_deleteFromReport}; ${sql_deleteFromSecurity}; ${sql_deleteFromUser}`;
 
     try {
       const connection = await pool.promise().getConnection();
       
       try {
-        await connection.execute(sql_deleteFromProfile, [username]);
-        await connection.execute(sql_deleteFromResult, [username]);
-        await connection.execute(sql_deleteFromFollow, [username, username]);
-        await connection.execute(sql_deleteFromLike, [username, username]);
-        await connection.execute(sql_deleteFromChat, [username, username]);
-        await connection.execute(sql_deleteFromNote, [username]);
-        await connection.execute(sql_deleteFromReport, [username, username]);
-        await connection.execute(sql_deleteFromSecurity, [username]);
-        await connection.execute(sql_deleteFromUser, [username]);
+        await connection.execute(combinedSql, [username, username, username, username, username, username, username, username, username,username,username,username,username]);
         
         return {
           sqlStatus: 1,
@@ -1537,11 +1513,11 @@ module.exports.deleteAccount = async function(username) {
         if (connection) connection.release();
       }
     } catch (err) {
-    return {
-      sqlStatus: 0,
-      errorStatus: err
-    };
-  }
+      return {
+        sqlStatus: 0,
+        errorStatus: err
+      };
+    }
   } else {
     return {
       sqlStatus: 0,
