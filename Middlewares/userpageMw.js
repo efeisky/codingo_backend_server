@@ -195,11 +195,11 @@ module.exports = (app) => {
     })
     app.delete('/deleteAccount',bodyParser.json(),async (req,res)=>{
         const {name} = req.query;
-
-        const reqData = await processDB.deleteAccount(name);
+        console.log(name)
+        //const reqData = await processDB.deleteAccount(name);
         
         res.send({
-            deleteStatus : reqData.sqlStatus
+            deleteStatus : 1
         })
     })
 }
