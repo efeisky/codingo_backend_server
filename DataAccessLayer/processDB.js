@@ -1503,8 +1503,8 @@ module.exports.deleteAccount = async function(username) {
       const connection = await pool.promise().getConnection();
       
       try {
-        await connection.execute(combinedSql, [username, username, username, username, username, username, username, username, username,username,username,username,username]);
-        
+        const [rows,fields] = await connection.execute(combinedSql, [username, username, username, username, username, username, username, username, username,username,username,username,username]);
+        console.log(rows)
         return {
           sqlStatus: 1,
           errorStatus: false
