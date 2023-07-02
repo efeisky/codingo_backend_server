@@ -8,7 +8,7 @@ module.exports = async(app) => {
         const {email,requestPassword} = req.body;
         const processResult = await process.resetPass({
             email : email,
-            password : hashPlain(requestPassword)
+            password : requestPassword
         })
         if(processResult.sqlResult === true){
             res.send({
