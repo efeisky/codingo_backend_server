@@ -41,7 +41,7 @@ module.exports = async(app) => {
         const {password,school,userEducation,userPython,userProvince} = JSON.parse(req.body.values)
         const completeRegister = await process.registerCompleteByGoogle(
           {
-            password: hashPlain(password),
+            password: password,
             school,
             userEducation,
             userPython,
