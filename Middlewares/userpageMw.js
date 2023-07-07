@@ -187,7 +187,7 @@ module.exports = (app) => {
     })
     app.put('/changePassword',bodyParser.json(),async (req,res)=> {
         const {name,password} = req.body;
-        const hashPassword = hashPlain(password)
+        const hashPassword = password
         const saveData = await processDB.savePassword(name,hashPassword)
         res.send({
             saveStatus : saveData.sqlStatus
