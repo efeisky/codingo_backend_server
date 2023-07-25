@@ -1241,7 +1241,8 @@ module.exports.setReport = async function({utp,upto,date},reportContent){
       complainingUser = (SELECT id FROM table_user WHERE username = ?),
       complainedUser = (SELECT id FROM table_user WHERE username = ?),
       reportContent = ?,
-      date = ?
+      date = ?,
+      status = 0
     `
 
     try {
