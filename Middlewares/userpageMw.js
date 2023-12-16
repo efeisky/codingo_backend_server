@@ -24,7 +24,7 @@ module.exports = (app) => {
         if(userInfo.userEducation){
             const lessonInfo = (await processDB.getLessonInfo({
                 mathOrder : userInfo.userMathLesson,
-                userClass : userInfo.userEducation,
+                userClass : parseInt(userInfo.userEducation),
                 pythonOrder : userInfo.userPyLesson
             }));
             res.send({
