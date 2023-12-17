@@ -327,8 +327,8 @@ module.exports.getLessonInfo = async function ({mathOrder,userClass,pythonOrder}
         return {
           sqlStatus: 1,
           errorStatus: false,
-          mathResult: mathSql[0][0]['lessonSubject'],
-          pythonResult: pythonSql[0][0]['lessonSubject']
+          mathResult: mathSql && mathSql[0] && mathSql[0][0] ? mathSql[0][0]['lessonSubject'] : 'Undefined',
+          pythonResult: pythonSql && pythonSql[0] && pythonSql[0][0] ? pythonSql[0][0]['lessonSubject'] : 'Undefined'
         }
       } finally {
         if (connection) connection.release();
