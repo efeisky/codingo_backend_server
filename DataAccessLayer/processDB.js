@@ -661,29 +661,28 @@ module.exports.getChat = async function(username){
   const resultTest = await testConnect()
   if(resultTest.dbStatus){
     const sql_getChat = `
-      
       SELECT
-      user.realName as realname,
-      user.username as username,
-      user.pictureSrc as picture,
-      c.chatContent as lastContent,
-      MAX(c.chatTime) AS lastChatTime,
-      CASE 
-          WHEN c.sender_username = user.id THEN 1
-          ELSE 0
-      END AS lastMessageSentByUser,
-      c.readStatus as isRead
-
-      FROM table_chat c
-      JOIN table_user user
-        ON user.id = c.sender_username OR user.id = c.receiver_username
-      WHERE user.username <> ? OR (
-        c.sender_username = (SELECT id FROM table_user WHERE username = ?) 
-        OR c.receiver_username = (SELECT id FROM table_user WHERE username = ?)
-      )
-      
-      GROUP BY user.username
-      ORDER BY lastChatTime DESC
+        user.realName AS realname,
+        user.username AS username,
+        user.pictureSrc AS picture,
+        c.chatContent AS lastContent,
+        c.chatTime AS lastChatTime,
+        CASE 
+            WHEN c.sender_username = user.id THEN 1
+            ELSE 0
+        END AS lastMessageSentByUser,
+        c.readStatus AS isRead
+    FROM (
+        SELECT *,
+               ROW_NUMBER() OVER (PARTITION BY LEAST(sender_username, receiver_username), GREATEST(sender_username, receiver_username) ORDER BY chatTime DESC) AS rn
+        FROM table_chat
+        WHERE sender_username = (SELECT id FROM table_user WHERE username = ?)
+           OR receiver_username = (SELECT id FROM table_user WHERE username = ?)
+    ) c
+    JOIN table_user user ON (user.id = c.sender_username OR user.id = c.receiver_username)
+    WHERE rn = 1
+    AND user.username <> ?
+    ORDER BY lastChatTime DESC;
       `;
 
 
