@@ -35,7 +35,8 @@ module.exports = async(app) => {
                 })
             }else{
                 const register = await process.registerUser(user.getUserDetailsAsList())
-                
+                console.log("Buradayız en sonunda")
+                console.log(register)
                 if(register.sqlStatus === 1){
                     let {username,email} = req.body;
                     registerMail({
