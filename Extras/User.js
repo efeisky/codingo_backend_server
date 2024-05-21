@@ -70,7 +70,7 @@ module.exports.User = class User {
             this.#school || '',
             this.#pictureSrc,
             this.userScore,
-            this.#userEducation || '',
+            this.#userEducation || 0,
             this.#userPython || 'unknowed',
             this.#userProvince || '',
             this.userMathLesson,
