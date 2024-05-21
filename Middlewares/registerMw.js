@@ -7,7 +7,7 @@ const bodyParser = require('body-parser')
 module.exports = async(app) => {
     app.post('/registerUser',bodyParser.json(),async(req,res) => {
         var user;
-        if(req.query.signType === 'Google'){
+        if(req.body.signType === 'Google'){
             let {username,email,pictureSrc} = req.body
             console.log(username)
             const goodUsername = usernameFormatter(username)
