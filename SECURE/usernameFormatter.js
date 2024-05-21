@@ -1,3 +1,6 @@
 module.exports.usernameFormatter = (str) => {
-    return str.replace(' ','_')
+    if (typeof str !== 'string') {
+        throw new Error('Girdi bir string olmalıdır.');
+    }
+    return str.replace(/\s+/g, '_');
 }
