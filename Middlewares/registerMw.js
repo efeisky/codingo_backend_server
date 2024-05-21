@@ -11,7 +11,7 @@ module.exports = async(app) => {
             let {username,email,pictureSrc} = req.body
             const goodUsername = usernameFormatter(username)
             console.log(goodUsername)
-            user = new User(username,goodUsername,email,'','',0,'','',pictureSrc)
+            user = new User(username,goodUsername,email,'','','','','',pictureSrc)
         }else{
             let {username,email,password,school,userEducation,userPython,userProvince} = req.body;
             const goodUsername = usernameFormatter(username)
