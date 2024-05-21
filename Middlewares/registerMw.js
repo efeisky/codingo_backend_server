@@ -9,6 +9,7 @@ module.exports = async(app) => {
         var user;
         if(req.query.signType === 'Google'){
             let {username,email,pictureSrc} = req.body
+            console.log(username)
             const goodUsername = usernameFormatter(username)
             user = new User(username,goodUsername,email,'','','','','',pictureSrc)
         }else{
